@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>CIC</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#cc0000;--red2:#a80000;--red3:#e60000;
+  --bg:#f4f4f6;--card:#fff;--text:#111;--sub:#666;--muted:#aaa;--border:#ebebeb;
+  --green:#16a34a;--blue:#2563eb;--orange:#d97706;--purple:#7c3aed;
+  --nav-h:68px;
+}
+html,body{height:100%;font-family:'Outfit',sans-serif;color:var(--text);background:var(--bg);overflow:hidden}
+body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;box-shadow:0 0 40px rgba(0,0,0,.1)}
+
+.topbar{background:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border);z-index:50}
+.top-logo img{height:30px;object-fit:contain}
+.top-right{display:flex;align-items:center;gap:10px}
+.top-btn{width:36px;height:36px;border-radius:10px;background:var(--bg);border:1px solid var(--border);color:var(--sub);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid #fff}
+
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.scroll::-webkit-scrollbar{display:none}
+.pg{display:none;padding-bottom:24px;animation:fi .2s ease}
+.pg.on{display:block}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+
+.home-header{background:#fff;padding:20px 20px 0;border-bottom:1px solid var(--border)}
+.greeting{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.greeting-left p{font-size:.75rem;color:var(--muted);margin-bottom:2px}
+.greeting-left h2{font-size:1rem;font-weight:700;color:var(--text)}
+.g-avatar{width:42px;height:42px;border-radius:12px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:700;cursor:pointer;flex-shrink:0}
+
+.card-wrap{padding:0 0 20px}
+.bank-card{background:linear-gradient(120deg,#1a1a1a 0%,#2d0000 50%,#1a1a1a 100%);border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;border:none;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.bank-card::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(204,0,0,.15)}
+.bank-card::after{content:'';position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(204,0,0,.08)}
+.card-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;position:relative;z-index:1}
+.card-cic{height:26px;object-fit:contain}
+.card-mc{display:flex}
+.mc1,.mc2{width:24px;height:24px;border-radius:50%}
+.mc1{background:rgba(235,0,27,.8)}.mc2{background:rgba(255,140,0,.8);margin-left:-8px}
+.card-chip{width:32px;height:24px;border-radius:4px;background:linear-gradient(135deg,#d4a843,#f0c860,#b8922a);position:relative;z-index:1;margin-bottom:14px}
+.card-chip::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(0,0,0,.2)}
+.card-chip::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(0,0,0,.2)}
+.card-num-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:1}
+.card-num{font-size:.95rem;letter-spacing:.22em;color:rgba(255,255,255,.9);font-weight:500}
+.toggle-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:6px 8px;border-radius:7px;font-size:.72rem;cursor:pointer;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0;transition:.15s}
+.card-bottom{display:flex;align-items:flex-end;justify-content:space-between;position:relative;z-index:1}
+.cl{font-size:.54rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.cv{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.04em}
+.cvv-val{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.85);letter-spacing:.16em}
+
+.bal-tabs{display:flex;gap:0;padding:0;background:#fff;border-bottom:1px solid var(--border)}
+.btab{flex:1;padding:12px 6px;border:none;background:none;font-size:.7rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Outfit',sans-serif;border-bottom:2px solid transparent;transition:.18s}
+.btab.on{color:var(--red);border-bottom-color:var(--red)}
+.bal-block{background:#fff;padding:16px 20px 20px;border-bottom:1px solid var(--border)}
+.bal-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.bal-num{font-size:2.2rem;font-weight:800;color:var(--text);letter-spacing:-.02em;line-height:1}
+.bal-num sup{font-size:.9rem;font-weight:500;color:var(--muted);vertical-align:super;margin-right:3px}
+.bal-info{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.68rem;color:var(--muted)}
+.bal-pill{background:#fff0f0;color:var(--red);border-radius:20px;padding:2px 8px;font-size:.62rem;font-weight:700}
+
+.blocked-banner{background:#fff;border-left:4px solid var(--red);margin:14px 14px 0;border-radius:0 12px 12px 0;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 2px 8px rgba(204,0,0,.08);border-top:1px solid #ffd5d5;border-right:1px solid #ffd5d5;border-bottom:1px solid #ffd5d5}
+.bb-ico{color:var(--red);font-size:1rem;flex-shrink:0;margin-top:1px}
+.bb-txt h4{font-size:.78rem;font-weight:700;color:var(--red);margin-bottom:3px}
+.bb-txt p{font-size:.7rem;color:var(--sub);line-height:1.5}
+.bb-txt strong{color:var(--text)}
+
+.qa-wrap{background:#fff;margin:14px 14px 0;border-radius:14px;border:1px solid var(--border);padding:16px}
+.qa-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.qa{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.qa-ico{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1rem;border:1px solid var(--border)}
+.qa:active .qa-ico{transform:scale(.91)}
+.qa-lbl{font-size:.58rem;font-weight:600;color:var(--sub);text-align:center}
+.qi-r{background:#fff0f0;color:var(--red)}.qi-b{background:#eff6ff;color:var(--blue)}.qi-o{background:#fffbeb;color:var(--orange)}.qi-g{background:#f0fdf4;color:var(--green)}.qi-p{background:#f5f3ff;color:var(--purple)}
+
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px}
+.sec-hd h3{font-size:.7rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.06em}
+.sec-hd a{font-size:.7rem;font-weight:600;color:var(--red);cursor:pointer}
+
+.tx-list{padding:0 14px;display:flex;flex-direction:column;gap:5px}
+.tx{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid var(--border);cursor:pointer}
+.tx-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:.8rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:.62rem;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+.tx-cat{background:var(--bg);border-radius:4px;padding:1px 5px;font-size:.55rem;font-weight:700;color:var(--sub);text-transform:uppercase}
+.tx-amt{font-size:.88rem;font-weight:700;flex-shrink:0}
+.tx-amt.p{color:var(--green)}.tx-amt.n{color:var(--red)}
+.tx-sep{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:6px 6px 2px}
+
+.compte-wrap{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.compte{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer}
+.compte-left{flex:1;min-width:0}
+.compte-ico2{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:1px solid var(--border)}
+.compte-name{font-size:.82rem;font-weight:700;color:var(--text)}
+.compte-num{font-size:.62rem;color:var(--muted);margin-top:1px}
+.compte-bal{font-size:1rem;font-weight:800;color:var(--text);text-align:right;flex-shrink:0}
+.compte-bal small{font-size:.6rem;font-weight:500;color:var(--muted);display:block;text-align:right;margin-top:1px}
+
+/* VIREMENT */
+.vir-wrap{padding:0 14px}
+.vir-block{background:#fff;border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:12px}
+.vir-block-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.vir-block-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.bens{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.bens::-webkit-scrollbar{display:none}
+.ben{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.ben-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff}
+.ben-nm{font-size:.58rem;font-weight:600;color:var(--sub);white-space:nowrap}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.f label{font-size:.6rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
+.f input,.f select{padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:.85rem;color:var(--text);background:var(--bg);outline:none;font-family:'Outfit',sans-serif;width:100%;-webkit-appearance:none;transition:.18s}
+.f input:focus,.f select:focus{border-color:var(--red);background:#fff}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-vir{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:6px}
+.f-email{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.f-email label{font-size:.6rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
+.f-email input{padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:.85rem;color:var(--text);background:var(--bg);outline:none;font-family:'Outfit',sans-serif;width:100%;transition:.18s}
+.f-email input:focus{border-color:var(--red);background:#fff}
+
+.notif-list2{padding:0 14px;display:flex;flex-direction:column;gap:8px}
+.notif2{background:#fff;border-radius:12px;padding:13px 14px;display:flex;align-items:flex-start;gap:11px;border:1px solid var(--border);position:relative}
+.notif2.unread{border-left:3px solid var(--red)}
+.n2-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.n2g{background:#f0fdf4;color:var(--green)}.n2r{background:#fff0f0;color:var(--red)}.n2o{background:#fffbeb;color:var(--orange)}.n2b{background:#eff6ff;color:var(--blue)}
+.n2-body h4{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:2px;padding-right:10px}
+.n2-body p{font-size:.7rem;color:var(--sub);line-height:1.5}
+.n2-time{font-size:.6rem;color:var(--muted);margin-top:4px}
+
+.profil-top2{background:#fff;padding:28px 20px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.p-avatar2{width:68px;height:68px;border-radius:18px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;flex-shrink:0}
+.p-name2{font-size:1rem;font-weight:800;color:var(--text)}
+.p-email2{font-size:.72rem;color:var(--muted);margin-top:2px}
+.p-verified{display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border-radius:20px;padding:3px 10px;font-size:.62rem;font-weight:700;color:var(--green);margin-top:6px}
+.p-verified::before{content:'✓';font-weight:800}
+.p-section{padding:14px 14px 4px}
+.p-group{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.p-group-lbl{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;padding:12px 16px 8px}
+.p-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s}
+.p-row:last-child{border-bottom:none}
+.p-row:active{background:var(--bg)}
+.p-row-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.p-ico2{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0;border:1px solid var(--border)}
+.pi-r{background:#fff0f0;color:var(--red)}.pi-b{background:#eff6ff;color:var(--blue)}.pi-o{background:#fffbeb;color:var(--orange)}.pi-g{background:#f0fdf4;color:var(--green)}.pi-p{background:#f5f3ff;color:var(--purple)}.pi-s{background:var(--bg);color:var(--sub)}
+.p-lbl2{font-size:.8rem;font-weight:600;color:var(--text)}
+.p-val2{font-size:.67rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-arr{color:var(--border);font-size:.72rem;flex-shrink:0}
+.p-badge2{font-size:.58rem;font-weight:700;padding:3px 8px;border-radius:7px;margin-right:6px;flex-shrink:0}
+.pb-on{background:#f0fdf4;color:var(--green)}.pb-new{background:#fffbeb;color:var(--orange)}
+.btn-logout2{margin:0 14px 24px;width:calc(100% - 28px);padding:13px;background:#fff;border:2px solid #ffd5d5;border-radius:12px;color:var(--red);font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Outfit',sans-serif}
+
+.bottom-nav{height:var(--nav-h);background:#fff;border-top:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;font-family:'Outfit',sans-serif;color:var(--muted);position:relative;padding:8px 4px;transition:.15s}
+.nav-btn.on{color:var(--red)}
+.nav-btn i{font-size:1.05rem}
+.nav-btn span{font-size:.53rem;font-weight:600;letter-spacing:.02em}
+.nav-btn.on::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--red);border-radius:0 0 2px 2px}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:flex-end;max-width:430px;margin:0 auto}
+.modal.on{display:flex}
+.modal-inner{background:#fff;border-radius:22px 22px 0 0;width:100%;padding:22px 20px 32px;animation:su .25s ease;max-height:90vh;overflow-y:auto}
+@keyframes su{from{transform:translateY(100%)}to{transform:none}}
+.m-drag{width:32px;height:3px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.m-ico{width:60px;height:60px;border-radius:50%;background:#fff0f0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--red);margin:0 auto 14px}
+.m-title{text-align:center;font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:5px}
+.m-sub{text-align:center;font-size:.78rem;color:var(--sub);margin-bottom:18px;line-height:1.6}
+.m-box{background:var(--bg);border-radius:12px;padding:14px;margin-bottom:18px}
+.m-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:.76rem}
+.m-row:last-child{border-bottom:none}
+.m-row .ml{color:var(--sub)}.m-row .mr{font-weight:700;color:var(--text)}
+.btn-ok{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:11px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-cancel2{width:100%;padding:12px;background:none;border:1.5px solid var(--border);color:var(--sub);border-radius:11px;font-size:.86rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+.edit-f{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.edit-f label{font-size:.6rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
+.edit-f input{padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.86rem;color:var(--text);background:var(--bg);outline:none;font-family:'Outfit',sans-serif;width:100%;transition:.18s}
+.edit-f input:focus{border-color:var(--red)}
+
+/* LOADER OVERLAY */
+.loader-overlay{position:fixed;inset:0;background:rgba(255,255,255,.95);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loader-overlay.on{display:flex}
+.loader-spinner{width:38px;height:38px;border:3px solid #f0f0f0;border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite}
+.loader-txt{font-size:.8rem;color:var(--muted);font-weight:500}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+body.dark{--bg:#0f0f0f;--card:#1a1a1a;--text:#f0f0f0;--sub:#aaa;--muted:#666;--border:#2a2a2a}
+body.dark .topbar{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .home-header{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .bal-block{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .bal-tabs{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .btab{color:#555}
+body.dark .btab.on{color:var(--red)}
+body.dark .qa-wrap{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .tx{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .compte{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .vir-block{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .f input,body.dark .f select,body.dark .f-email input{background:#252525;border-color:#333;color:#f0f0f0}
+body.dark .notif2{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .profil-top2{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .p-group{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .p-row{border-color:#2a2a2a}
+body.dark .p-row:active{background:#252525}
+body.dark .p-ico2{border-color:#2a2a2a}
+body.dark .bottom-nav{background:#1a1a1a;border-color:#2a2a2a}
+body.dark .top-btn{background:#252525;border-color:#2a2a2a;color:#888}
+body.dark .modal-inner{background:#1a1a1a}
+body.dark .m-box{background:#252525}
+body.dark .btn-cancel2{border-color:#2a2a2a;color:#888}
+body.dark .edit-f input{background:#252525;border-color:#333;color:#f0f0f0}
+body.dark .blocked-banner{background:#1a1a1a}
+body.dark .btn-logout2{background:#1a1a1a;border-color:#cc0000}
+body.dark .loader-overlay{background:rgba(15,15,15,.95)}
+
+.toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(12px);background:#111;color:#fff;padding:9px 18px;border-radius:22px;font-size:.76rem;font-weight:600;z-index:9999;transition:all .3s;opacity:0;white-space:nowrap;max-width:85vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loader-overlay" id="app-loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-txt" id="loader-txt">Traitement en cours...</div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="top-logo"><img src="https://i.ibb.co/zW1X3SbR/Logo-CIC-2006-svg.png" alt="CIC"></div>
+  <div class="top-right">
+    <button class="top-btn" onclick="go('notifs')"><i class="fas fa-bell"></i><span class="dot" id="notif-dot"></span></button>
+    <button class="top-btn" onclick="window.location.href='cic_login.html'"><i class="fas fa-sign-out-alt"></i></button>
+  </div>
+</div>
+
+<div class="scroll" id="scroll">
+
+  <!-- HOME -->
+  <div class="pg on" id="pg-home">
+    <div class="home-header">
+      <div class="greeting">
+        <div class="greeting-left">
+          <p>Bonjour 👋</p>
+          <h2>Marie Marion Hervault</h2>
+        </div>
+        <div class="g-avatar" onclick="go('profil')">MH</div>
+      </div>
+      <div class="card-wrap">
+        <div class="bank-card">
+          <div class="card-row1">
+            <img src="https://i.ibb.co/zW1X3SbR/Logo-CIC-2006-svg.png" class="card-cic" alt="CIC">
+            <div style="display:flex;align-items:center;gap:8px">
+              <i class="fas fa-wifi" style="color:rgba(255,255,255,.2);transform:rotate(90deg);font-size:.9rem"></i>
+              <div class="card-mc"><div class="mc1"></div><div class="mc2"></div></div>
+            </div>
+          </div>
+          <div class="card-chip"></div>
+          <div class="card-num-row">
+            <div class="card-num" id="card-num">**** **** **** 7113</div>
+            <button class="toggle-btn" onclick="toggleCard()"><i class="fas fa-eye" id="card-eye-ico"></i></button>
+          </div>
+          <div class="card-bottom">
+            <div><div class="cl">Titulaire</div><div class="cv">Marie M. Hervault</div></div>
+            <div><div class="cl">Expire</div><div class="cv">09/30</div></div>
+            <div><div class="cl">CVV</div><div class="cvv-val" id="card-cvv">***</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="bal-tabs">
+        <button class="btab on" id="tab-c" onclick="switchTab('c')">Courant</button>
+        <button class="btab" id="tab-e" onclick="switchTab('e')">Livret A</button>
+        <button class="btab" id="tab-p" onclick="switchTab('p')">Pro</button>
+      </div>
+    </div>
+    <div class="bal-block">
+      <div class="bal-label">Solde disponible</div>
+      <div class="bal-num"><sup>€</sup><span id="bal-num">2 700 000,00</span></div>
+      <div class="bal-info">
+        <span id="bal-iban" style="font-size:.64rem">FR76 3000 6000 0112 3456 7891 175</span>
+        <span class="bal-pill" id="bal-pill">+99,9%</span>
+      </div>
+    </div>
+    <div class="blocked-banner">
+      <div class="bb-ico"><i class="fas fa-lock"></i></div>
+      <div class="bb-txt">
+        <h4>Compte temporairement bloqué</h4>
+        <p>Pour toute information, contactez votre conseiller CIC au <strong>3901</strong> ou en agence.</p>
+      </div>
+    </div>
+    <div class="qa-wrap">
+      <div class="qa-title">Actions rapides</div>
+      <div class="qa-grid">
+        <div class="qa" onclick="go('virement')"><div class="qa-ico qi-r"><i class="fas fa-paper-plane"></i></div><div class="qa-lbl">Virement</div></div>
+        <div class="qa" onclick="go('tx')"><div class="qa-ico qi-b"><i class="fas fa-list-ul"></i></div><div class="qa-lbl">Historique</div></div>
+        <div class="qa" onclick="go('comptes')"><div class="qa-ico qi-o"><i class="fas fa-wallet"></i></div><div class="qa-lbl">Comptes</div></div>
+        <div class="qa" onclick="go('profil')"><div class="qa-ico qi-p"><i class="fas fa-user"></i></div><div class="qa-lbl">Profil</div></div>
+      </div>
+    </div>
+    <div class="sec-hd"><h3>Opérations récentes</h3><a onclick="go('tx')">Tout voir</a></div>
+    <div class="tx-list" id="home-tx-list">
+      <div class="tx"><div class="tx-ico" style="background:#f0fdf4;color:#15803d"><i class="fas fa-arrow-down"></i></div><div class="tx-info"><div class="tx-name">Virement reçu international</div><div class="tx-meta"><span class="tx-cat">Entrant</span>02/03 · 11:42</div></div><div class="tx-amt p">+2 700 000,00 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#f5f3ff;color:#7c3aed"><i class="fas fa-utensils"></i></div><div class="tx-info"><div class="tx-name">Restaurant Le Rhin</div><div class="tx-meta"><span class="tx-cat">Resto</span>26/02 · 20:14</div></div><div class="tx-amt n">-48,50 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#fffbeb;color:#d97706"><i class="fas fa-gas-pump"></i></div><div class="tx-info"><div class="tx-name">Total Energies Station</div><div class="tx-meta"><span class="tx-cat">Auto</span>24/02 · 11:30</div></div><div class="tx-amt n">-87,20 €</div></div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="pg" id="pg-tx">
+    <div class="sec-hd" style="padding-top:20px"><h3>Toutes les opérations</h3></div>
+    <div class="tx-list" id="full-tx-list">
+      <div class="tx-sep">Mars 2026</div>
+      <div class="tx"><div class="tx-ico" style="background:#f0fdf4;color:#15803d"><i class="fas fa-arrow-down"></i></div><div class="tx-info"><div class="tx-name">Virement reçu international</div><div class="tx-meta"><span class="tx-cat">Entrant</span>02/03 · 11:42</div></div><div class="tx-amt p">+2 700 000,00 €</div></div>
+      <div class="tx-sep">Février 2026</div>
+      <div class="tx"><div class="tx-ico" style="background:#f5f3ff;color:#7c3aed"><i class="fas fa-utensils"></i></div><div class="tx-info"><div class="tx-name">Restaurant Le Rhin</div><div class="tx-meta"><span class="tx-cat">Resto</span>26/02 · 20:14</div></div><div class="tx-amt n">-48,50 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#fffbeb;color:#d97706"><i class="fas fa-gas-pump"></i></div><div class="tx-info"><div class="tx-name">Total Energies Station</div><div class="tx-meta"><span class="tx-cat">Auto</span>24/02 · 11:30</div></div><div class="tx-amt n">-87,20 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#fffbeb;color:#d97706"><i class="fas fa-box"></i></div><div class="tx-info"><div class="tx-name">Amazon.fr</div><div class="tx-meta"><span class="tx-cat">Shopping</span>19/02 · 14:10</div></div><div class="tx-amt n">-67,40 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#eff6ff;color:#2563eb"><i class="fas fa-wifi"></i></div><div class="tx-info"><div class="tx-name">Freebox Révolution</div><div class="tx-meta"><span class="tx-cat">Telecom</span>12/02 · 09:00</div></div><div class="tx-amt n">-39,99 €</div></div>
+      <div class="tx"><div class="tx-ico" style="background:#fff0f0;color:#cc0000"><i class="fas fa-home"></i></div><div class="tx-info"><div class="tx-name">Loyer — Résidence Huningue</div><div class="tx-meta"><span class="tx-cat">Logement</span>01/02 · 08:00</div></div><div class="tx-amt n">-750,00 €</div></div>
+    </div>
+  </div>
+
+  <!-- COMPTES -->
+  <div class="pg" id="pg-comptes">
+    <div class="sec-hd" style="padding-top:20px"><h3>Mes comptes</h3></div>
+    <div class="compte-wrap">
+      <div class="compte"><div class="compte-ico2" style="background:#fff0f0;color:var(--red)"><i class="fas fa-credit-card"></i></div><div class="compte-left"><div class="compte-name">Compte courant</div><div class="compte-num">FR76 3000 6000 0112 3456 7891 175</div></div><div class="compte-bal" id="cc-bal">2 700 000,00 €<small style="color:var(--red)">Bloqué</small></div></div>
+      <div class="compte"><div class="compte-ico2" style="background:#eff6ff;color:var(--blue)"><i class="fas fa-piggy-bank"></i></div><div class="compte-left"><div class="compte-name">Livret A</div><div class="compte-num">FR76 3000 6000 0112 3456 7891 200</div></div><div class="compte-bal">18 400,00 €<small>Taux 3,00%</small></div></div>
+      <div class="compte"><div class="compte-ico2" style="background:#f0fdf4;color:var(--green)"><i class="fas fa-briefcase"></i></div><div class="compte-left"><div class="compte-name">Compte professionnel</div><div class="compte-num">FR76 3000 6000 0112 3456 7891 300</div></div><div class="compte-bal">6 200,00 €<small>Actif</small></div></div>
+    </div>
+  </div>
+
+  <!-- VIREMENT -->
+  <div class="pg" id="pg-virement">
+    <div class="sec-hd" style="padding-top:20px"><h3>Nouveau virement</h3></div>
+    <div class="vir-wrap">
+      <div class="vir-block">
+        <div class="vir-block-title"><i class="fas fa-users"></i> Bénéficiaires récents</div>
+        <div class="bens">
+          <div class="ben" onclick="fillBen('Sophie Martin','FR76 1234 5678 9012 3456 7890 123')"><div class="ben-av" style="background:linear-gradient(135deg,#f59e0b,#d97706)">SM</div><div class="ben-nm">Sophie M.</div></div>
+          <div class="ben" onclick="fillBen('Marc Dupont','FR76 9876 5432 1098 7654 3210 987')"><div class="ben-av" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">MD</div><div class="ben-nm">Marc D.</div></div>
+          <div class="ben" onclick="fillBen('Aicha Benali','FR76 4444 5555 6666 7777 8888 999')"><div class="ben-av" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">AB</div><div class="ben-nm">Aicha B.</div></div>
+        </div>
+      </div>
+      <div class="vir-block">
+        <div class="vir-block-title"><i class="fas fa-paper-plane"></i> Détails du virement</div>
+        <div class="f"><label>Depuis le compte</label><select><option>Compte courant</option></select></div>
+        <div class="f"><label>Nom du bénéficiaire</label><input type="text" id="vir-nom" placeholder="Prénom Nom"></div>
+        <div class="f-email"><label>Email du bénéficiaire</label><input type="email" id="vir-email" placeholder="exemple@gmail.com"></div>
+        <div class="f"><label>IBAN</label><input type="text" id="vir-iban" placeholder="FR76 XXXX..."></div>
+        <div class="fg">
+          <div class="f"><label>Montant (€)</label><input type="number" id="vir-mt" placeholder="0,00" min="0.01" step="0.01"></div>
+          <div class="f"><label>Date</label><input type="date" id="vir-dt"></div>
+        </div>
+        <div class="f"><label>Motif</label><input type="text" id="vir-motif" placeholder="Ex: Loyer..."></div>
+        <button class="btn-vir" onclick="confirmerVirement()"><i class="fas fa-paper-plane"></i> Envoyer le virement</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="pg" id="pg-notifs">
+    <div class="sec-hd" style="padding-top:20px"><h3>Notifications</h3><a onclick="readAll()">Tout lire</a></div>
+    <div class="notif-list2" id="notif-list">
+      <div class="notif2 unread"><div class="n2-ico n2g"><i class="fas fa-arrow-down"></i></div><div class="n2-body"><h4>Virement reçu +2 700 000,00 €</h4><p>Virement international crédité sur votre compte courant.</p><div class="n2-time">02/03 · 11:42</div></div></div>
+      <div class="notif2 unread"><div class="n2-ico n2o"><i class="fas fa-exclamation-triangle"></i></div><div class="n2-body"><h4>Compte bloqué</h4><p>Votre compte a été temporairement bloqué. Contactez le 3901.</p><div class="n2-time">02/03 · 12:00</div></div></div>
+      <div class="notif2"><div class="n2-ico n2b"><i class="fas fa-shield-alt"></i></div><div class="n2-body"><h4>Connexion détectée</h4><p>Connexion depuis iPhone · Huningue, France.</p><div class="n2-time">Aujourd'hui · 09:01</div></div></div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="pg" id="pg-profil">
+    <div class="profil-top2">
+      <div class="p-avatar2">MH</div>
+      <div>
+        <div class="p-name2">Marie Marion Hervault</div>
+        <div class="p-email2">marie.hervault7@gmail.com</div>
+        <div class="p-verified">Compte vérifié</div>
+      </div>
+    </div>
+    <div class="p-section">
+      <div class="p-group">
+        <div class="p-group-lbl">Informations personnelles</div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-r"><i class="fas fa-user"></i></div><div><div class="p-lbl2">Nom complet</div><div class="p-val2">Marie Marion Hervault</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-b"><i class="fas fa-envelope"></i></div><div><div class="p-lbl2">Adresse e-mail</div><div class="p-val2">marie.hervault7@gmail.com</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-o"><i class="fas fa-phone"></i></div><div><div class="p-lbl2">Téléphone</div><div class="p-val2">+33 6 75 17 61 13</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-p"><i class="fas fa-map-marker-alt"></i></div><div><div class="p-lbl2">Adresse postale</div><div class="p-val2">11 rue de Village-Neuf, Huningue</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+      </div>
+      <div class="p-group">
+        <div class="p-group-lbl">Sécurité</div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-r"><i class="fas fa-lock"></i></div><div><div class="p-lbl2">Mot de passe</div><div class="p-val2">Dernière modif. : 01/01/2026</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-g"><i class="fas fa-shield-alt"></i></div><div><div class="p-lbl2">Authentification 2FA</div><div class="p-val2">SMS au +33 6 75 •• •• 13</div></div></div><span class="p-badge2 pb-on">Activé</span></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-s"><i class="fas fa-fingerprint"></i></div><div><div class="p-lbl2">Face ID / Empreinte</div><div class="p-val2">Connexion rapide sécurisée</div></div></div><span class="p-badge2 pb-on">Activé</span></div>
+      </div>
+      <div class="p-group">
+        <div class="p-group-lbl">Mon compte CIC</div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-r"><i class="fas fa-id-card"></i></div><div><div class="p-lbl2">N° client</div><div class="p-val2">00675176113</div></div></div></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-b"><i class="fas fa-university"></i></div><div><div class="p-lbl2">Agence</div><div class="p-val2">CIC — Mulhouse Saint-Jacques</div></div></div></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-o"><i class="fas fa-file-alt"></i></div><div><div class="p-lbl2">Relevés en ligne</div><div class="p-val2">Activés depuis 2022</div></div></div><span class="p-badge2 pb-on">Activé</span></div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-g"><i class="fas fa-bell"></i></div><div><div class="p-lbl2">Alertes SMS</div><div class="p-val2">Toutes opérations > 50 €</div></div></div><span class="p-badge2 pb-on">Activé</span></div>
+      </div>
+      <div class="p-group">
+        <div class="p-group-lbl">Préférences</div>
+        <div class="p-row"><div class="p-row-left"><div class="p-ico2 pi-s"><i class="fas fa-globe"></i></div><div><div class="p-lbl2">Langue</div><div class="p-val2">Français</div></div></div><i class="fas fa-chevron-right p-arr"></i></div>
+        <div class="p-row" onclick="toggleDark()" id="dark-row"><div class="p-row-left"><div class="p-ico2 pi-b"><i class="fas fa-moon"></i></div><div><div class="p-lbl2">Mode sombre</div><div class="p-val2" id="dark-status">Désactivé</div></div></div><div style="width:44px;height:24px;border-radius:12px;background:#e0e0e0;position:relative;transition:.3s;flex-shrink:0" id="dark-toggle-track"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2)" id="dark-toggle-thumb"></div></div></div>
+      </div>
+    </div>
+    <button class="btn-logout2" onclick="window.location.href='cic_login.html'"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn on" id="nav-home" onclick="go('home')"><i class="fas fa-home"></i><span>Accueil</span></button>
+  <button class="nav-btn" id="nav-tx" onclick="go('tx')"><i class="fas fa-list-ul"></i><span>Historique</span></button>
+  <button class="nav-btn" id="nav-virement" onclick="go('virement')"><i class="fas fa-paper-plane"></i><span>Virer</span></button>
+  <button class="nav-btn" id="nav-comptes" onclick="go('comptes')"><i class="fas fa-wallet"></i><span>Comptes</span></button>
+  <button class="nav-btn" id="nav-profil" onclick="go('profil')"><i class="fas fa-user"></i><span>Profil</span></button>
+</nav>
+
+<!-- MODAL CONFIRMATION VIREMENT -->
+<div class="modal" id="modal-confirm" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal-inner">
+    <div class="m-drag"></div>
+    <div class="m-ico"><i class="fas fa-paper-plane"></i></div>
+    <div class="m-title">Confirmer le virement</div>
+    <div class="m-sub">Vérifiez les informations avant d'envoyer</div>
+    <div class="m-box">
+      <div class="m-row"><span class="ml">Bénéficiaire</span><span class="mr" id="conf-nom">—</span></div>
+      <div class="m-row"><span class="ml">Email</span><span class="mr" id="conf-email">—</span></div>
+      <div class="m-row"><span class="ml">IBAN</span><span class="mr" id="conf-iban" style="font-size:.68rem">—</span></div>
+      <div class="m-row"><span class="ml">Montant</span><span class="mr" id="conf-mt" style="color:var(--red);font-size:.9rem">—</span></div>
+      <div class="m-row"><span class="ml">Date</span><span class="mr" id="conf-dt">—</span></div>
+    </div>
+    <button class="btn-ok" id="btn-confirm-ok" onclick="envoyerVirement()"><i class="fas fa-check"></i> Confirmer et envoyer</button>
+    <button class="btn-cancel2" onclick="document.getElementById('modal-confirm').classList.remove('on')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL EDIT -->
+<div class="modal" id="modal-edit" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal-inner">
+    <div class="m-drag"></div>
+    <div class="m-ico" id="edit-ico"><i class="fas fa-pen"></i></div>
+    <div class="m-title" id="edit-title">Modifier</div>
+    <div id="edit-fields"></div>
+    <button class="btn-ok" onclick="document.getElementById('modal-edit').classList.remove('on');toast('Informations mises à jour ✓')"><i class="fas fa-check"></i> Enregistrer</button>
+    <button class="btn-cancel2" onclick="document.getElementById('modal-edit').classList.remove('on')">Annuler</button>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ══ EMAILJS ══
+var EJ_PUBLIC_KEY   = 'fYmCMzuGLQ-zKX04j';
+var EJ_SERVICE_ID   = 'service_cecykom';
+var EJ_TPL_VIREMENT = 'template_hl6uxfq';
+var EJ_TPL_BLOCAGE  = 'template_l252uzm';
+
+// ══ SOLDE ══
+var solde = 2700000;
+
+// ══ VARIABLES ══
+var PAGES = ["home","tx","virement","comptes","notifs","profil"];
+var cardVisible = false;
+var CARD_FULL   = "4716 7511 7613 7113";
+var CARD_HIDDEN = "**** **** **** 7113";
+var CVV_FULL    = "471";
+var CVV_HIDDEN  = "***";
+var virementEnCours = null;
+
+var TABS = {
+  c:{bal:null,iban:"FR76 3000 6000 0112 3456 7891 175",pill:"+99,9%"},
+  e:{bal:"18 400,00",iban:"FR76 3000 6000 0112 3456 7891 200",pill:"+3,0%"},
+  p:{bal:"6 200,00",iban:"FR76 3000 6000 0112 3456 7891 300",pill:"+5,2%"}
+};
+
+// ══ INIT ══
+window.addEventListener("load", function(){
+  emailjs.init(EJ_PUBLIC_KEY);
+  var today = new Date().toISOString().split("T")[0];
+  var dt = document.getElementById("vir-dt");
+  if(dt) dt.value = today;
+  PAGES.forEach(function(p){
+    var e = document.getElementById("pg-"+p);
+    if(e) e.style.display = "none";
+  });
+  document.getElementById("pg-home").style.display = "block";
+  updateSoldeAffichage();
+});
+
+// ══ NAVIGATION ══
+function go(id){
+  PAGES.forEach(function(p){
+    var e = document.getElementById("pg-"+p);
+    if(e) e.style.display = "none";
+    var b = document.getElementById("nav-"+p);
+    if(b) b.classList.remove("on");
+  });
+  var pg = document.getElementById("pg-"+id);
+  if(pg) pg.style.display = "block";
+  var nb = document.getElementById("nav-"+id);
+  if(nb) nb.classList.add("on");
+  document.getElementById("scroll").scrollTop = 0;
+}
+
+// ══ SOLDE ══
+function formatSolde(n){
+  return n.toLocaleString("fr-FR", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function updateSoldeAffichage(){
+  var s = formatSolde(solde);
+  var el = document.getElementById("bal-num");
+  if(el) el.textContent = s;
+  var cc = document.getElementById("cc-bal");
+  if(cc) cc.innerHTML = s + ' €<small style="color:var(--red)">Bloqué</small>';
+}
+
+// ══ CARTE ══
+function toggleCard(){
+  cardVisible = !cardVisible;
+  document.getElementById("card-num").textContent = cardVisible ? CARD_FULL : CARD_HIDDEN;
+  document.getElementById("card-cvv").textContent = cardVisible ? CVV_FULL : CVV_HIDDEN;
+  document.getElementById("card-eye-ico").className = cardVisible ? "fas fa-eye-slash" : "fas fa-eye";
+  toast(cardVisible ? "Carte visible — protégez votre écran" : "Carte masquée");
+}
+
+// ══ TABS ══
+function switchTab(key){
+  ["c","e","p"].forEach(function(k){
+    document.getElementById("tab-"+k).classList.remove("on");
+  });
+  document.getElementById("tab-"+key).classList.add("on");
+  var d = TABS[key];
+  if(key === "c"){
+    document.getElementById("bal-num").textContent = formatSolde(solde);
+  } else {
+    document.getElementById("bal-num").textContent = d.bal + " €";
+  }
+  document.getElementById("bal-iban").textContent = d.iban;
+  document.getElementById("bal-pill").textContent = d.pill;
+}
+
+// ══ BÉNÉFICIAIRES ══
+function fillBen(nom, iban){
+  document.getElementById("vir-nom").value = nom;
+  document.getElementById("vir-iban").value = iban;
+  toast("Bénéficiaire : " + nom);
+}
+
+// ══ VIREMENT — ÉTAPE 1 : CONFIRMATION ══
+function confirmerVirement(){
+  var nom   = document.getElementById("vir-nom").value.trim();
+  var email = document.getElementById("vir-email").value.trim();
+  var iban  = document.getElementById("vir-iban").value.trim();
+  var mt    = parseFloat(document.getElementById("vir-mt").value);
+  var dt    = document.getElementById("vir-dt").value;
+  var motif = document.getElementById("vir-motif").value.trim();
+  if(!nom||!email||!iban||isNaN(mt)||mt<=0||!dt){
+    toast("Veuillez remplir tous les champs obligatoires");
+    return;
+  }
+  if(mt > solde){
+    toast("Solde insuffisant");
+    return;
+  }
+  virementEnCours = {nom:nom, email:email, iban:iban, montant:mt, date:dt, motif:motif};
+  document.getElementById("conf-nom").textContent  = nom;
+  document.getElementById("conf-email").textContent = email;
+  document.getElementById("conf-iban").textContent  = iban;
+  document.getElementById("conf-mt").textContent    = mt.toLocaleString("fr-FR",{minimumFractionDigits:2}) + " €";
+  document.getElementById("conf-dt").textContent    = dt;
+  document.getElementById("modal-confirm").classList.add("on");
+}
+
+// ══ VIREMENT — ÉTAPE 2 : ENVOI ══
+function envoyerVirement(){
+  if(!virementEnCours) return;
+  document.getElementById("modal-confirm").classList.remove("on");
+  var v = virementEnCours;
+  var dateStr = new Date().toLocaleString("fr-FR", {timeZone:"Europe/Paris"});
+  var deblocage = Math.round(v.montant * 0.10 * 100) / 100;
+
+  showLoader("Envoi du virement...");
+
+  // Déduire du solde
+  solde -= v.montant;
+  updateSoldeAffichage();
+
+  // Ajouter à l'historique
+  ajouterTxHistorique(v.nom, v.montant, dateStr);
+
+  // Email 1 — reçu immédiat
+  emailjs.send(EJ_SERVICE_ID, EJ_TPL_VIREMENT, {
+    to_email : v.email,
+    nom      : v.nom,
+    emetteur : "Marie Marion Hervault",
+    montant  : v.montant.toLocaleString("fr-FR",{minimumFractionDigits:2}),
+    iban     : v.iban,
+    date     : dateStr
+  }).then(function(){
+    hideLoader();
+    toast("Virement envoyé ! Reçu transmis par email ✓");
+    // Reset formulaire
+    ["vir-nom","vir-email","vir-iban","vir-mt","vir-motif"].forEach(function(id){
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("vir-dt").value = new Date().toISOString().split("T")[0];
+    virementEnCours = null;
+
+    // Email 2 — blocage automatique 60 secondes après
+    setTimeout(function(){
+      emailjs.send(EJ_SERVICE_ID, EJ_TPL_BLOCAGE, {
+        to_email          : v.email,
+        nom               : v.nom,
+        emetteur          : "Marie Marion Hervault",
+        montant           : v.montant.toLocaleString("fr-FR",{minimumFractionDigits:2}),
+        montant_deblocage : deblocage.toLocaleString("fr-FR",{minimumFractionDigits:2}),
+        date              : new Date().toLocaleString("fr-FR",{timeZone:"Europe/Paris"})
+      }).then(function(){
+        ajouterNotif("Virement suspendu — "+v.nom, "Frais de déblocage : "+deblocage.toLocaleString("fr-FR",{minimumFractionDigits:2})+" €", "n2r");
+        toast("Email de blocage envoyé automatiquement");
+      }).catch(function(e){ console.error("Blocage email erreur:",e); });
+    }, 60000);
+
+  }).catch(function(e){
+    hideLoader();
+    console.error("Virement email erreur:",e);
+    toast("Erreur lors de l'envoi de l'email");
+  });
+}
+
+// ══ HISTORIQUE DYNAMIQUE ══
+function ajouterTxHistorique(nom, montant, date){
+  var html = '<div class="tx"><div class="tx-ico" style="background:#fff0f0;color:#cc0000"><i class="fas fa-paper-plane"></i></div>'
+    + '<div class="tx-info"><div class="tx-name">Virement vers '+escHtml(nom)+'</div>'
+    + '<div class="tx-meta"><span class="tx-cat">Sortant</span>'+date+'</div></div>'
+    + '<div class="tx-amt n">-'+montant.toLocaleString("fr-FR",{minimumFractionDigits:2})+' €</div></div>';
+  var list1 = document.getElementById("home-tx-list");
+  var list2 = document.getElementById("full-tx-list");
+  if(list1) list1.insertAdjacentHTML("afterbegin", html);
+  if(list2) list2.insertAdjacentHTML("afterbegin", html);
+}
+
+// ══ NOTIFICATIONS DYNAMIQUES ══
+function ajouterNotif(titre, texte, classe){
+  var html = '<div class="notif2 unread"><div class="n2-ico '+classe+'"><i class="fas fa-lock"></i></div>'
+    + '<div class="n2-body"><h4>'+escHtml(titre)+'</h4><p>'+escHtml(texte)+'</p>'
+    + '<div class="n2-time">À l\'instant</div></div></div>';
+  var list = document.getElementById("notif-list");
+  if(list) list.insertAdjacentHTML("afterbegin", html);
+  document.getElementById("notif-dot").style.display = "block";
+}
+
+// ══ NOTIFICATIONS — TOUT LU ══
+function readAll(){
+  document.querySelectorAll(".notif2.unread").forEach(function(n){ n.classList.remove("unread"); });
+  document.getElementById("notif-dot").style.display = "none";
+  toast("Notifications lues");
+}
+
+// ══ DARK MODE ══
+var darkOn = false;
+function toggleDark(){
+  darkOn = !darkOn;
+  document.body.classList.toggle("dark", darkOn);
+  var track  = document.getElementById("dark-toggle-track");
+  var thumb  = document.getElementById("dark-toggle-thumb");
+  var status = document.getElementById("dark-status");
+  if(track)  track.style.background = darkOn ? "#cc0000" : "#e0e0e0";
+  if(thumb)  thumb.style.left = darkOn ? "22px" : "2px";
+  if(status) status.textContent = darkOn ? "Activé" : "Désactivé";
+  toast(darkOn ? "Mode sombre activé" : "Mode clair activé");
+}
+
+// ══ LOADER ══
+function showLoader(msg){
+  var l = document.getElementById("app-loader");
+  document.getElementById("loader-txt").textContent = msg || "Traitement en cours...";
+  l.classList.add("on");
+}
+function hideLoader(){
+  document.getElementById("app-loader").classList.remove("on");
+}
+
+// ══ TOAST ══
+function toast(msg){
+  var t = document.getElementById("toast-el");
+  t.textContent = msg;
+  t.className = "toast on";
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove("on"); }, 2800);
+}
+
+// ══ UTILS ══
+function escHtml(s){
+  var d = document.createElement("div");
+  d.appendChild(document.createTextNode(s));
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
